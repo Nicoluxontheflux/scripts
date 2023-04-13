@@ -1,0 +1,199 @@
+#!/bin/sh -e
+# ESET PROTECT
+# Copyright (c) 1992-2022 ESET, spol. s r.o. All Rights Reserved
+
+files2del="$(mktemp -q /tmp/EraAgentOnlineInstaller.XXXXXXXX)"
+dirs2del="$(mktemp -q /tmp/EraAgentOnlineInstaller.XXXXXXXX)"
+echo "$dirs2del" >> "$files2del"
+dirs2umount="$(mktemp -q /tmp/EraAgentOnlineInstaller.XXXXXXXX)"
+echo "$dirs2umount" >> "$files2del"
+
+finalize()
+{
+  set +e
+
+  echo "Cleaning up:"
+
+  if test -f "$dirs2umount"
+  then
+    while read f
+    do
+      sudo -S hdiutil detach "$f"
+    done < "$dirs2umount"
+  fi
+
+  if test -f "$dirs2del"
+  then
+    while read f
+    do
+      test -d "$f" && rm -rf "$f"
+    done < "$dirs2del"
+  fi
+
+  if test -f "$files2del"
+  then
+    while read f
+    do
+      rm -f "$f"
+    done < "$files2del"
+    rm -f "$files2del"
+  fi
+}
+
+trap 'finalize' HUP INT QUIT TERM EXIT
+
+eraa_server_hostname="qw27th6m7d3ezj277kr5fh4jm4.a.ecaserver.eset.com"
+eraa_server_port="443"
+eraa_server_company_name="DEALTY INVEST / 301758"
+eraa_peer_cert_b64="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"
+eraa_peer_cert_pwd=""
+eraa_ca_cert_b64="MIIFpDCCA4ygAwIBAgIIMUSW0eFkh/8wDQYJKoZIhvcNAQELBQAwaDELMAkGA1UEBhMCU0sxGDAWBgNVBAgTD1Nsb3ZhayBSZXB1YmxpYzETMBEGA1UEBxMKQnJhdGlzbGF2YTENMAsGA1UEChMERXNldDEbMBkGA1UEAxMSRVBDIEFnZW50IHByb3h5IENBMB4XDTIyMDYyMDAwMDAwMFoXDTMyMDYxOTIzNTk1OVowaDELMAkGA1UEBhMCU0sxGDAWBgNVBAgTD1Nsb3ZhayBSZXB1YmxpYzETMBEGA1UEBxMKQnJhdGlzbGF2YTENMAsGA1UEChMERXNldDEbMBkGA1UEAxMSRVBDIEFnZW50IHByb3h5IENBMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEApFyygZ31hn6s/K7+Lm/r3KP+P5Gn0pb5J6IR0F+KtBUiNE9nRn5PnVDdyj9uVd6BZIKcczoHebH/70GQUuOzprDtHhWUTNDZ7R4NfNz0u5cYn2mKPk9lJRPEcuvqKr+aGsCs1yMv226xd72ngJE/Z2MlGLGX5+kuO0HmQWRUK/SDtmcCvforHs7zE19PjXmZQnpW+bUFkLeHcHS4WtJ64CNkbuTHssK8nNDQoJXLZVKafLWCkAZ94vpZWDRG5AffdBDnKrSy+WOTI6dOJw8i+uJ7YtWconTJo9NRCcgTzCHujylXgqWkwm3f+Wh/h0u5KIJEzTPN/RTzP+/SWEDrYi7+wECXWv6kU3Ty3KkzPGsAt9ABmnvAUGShi8Heyhnes6E3IiUt3wko+LHVw9hFyXFjfqtgRtxvOTcX06zinpQbtl+d1Wm7mU/ORFIPffRec4B9YewF1VRCm4gT5vqFZbO7BUnuyKFeGr6Vxlgrgz0mPS0PAoATI500x9g8Md3Mmshc/6wLInMHgSh//n+aylnePRrTvLEJhcWgoDx57wZ7G5fTeHEFIRrcU3ez6PSKbodCBcjfWrGLkXNQzmIwhDxVRmo4DXLga6MzbYqU54zQVfk60CiFEvwwK8l7WBZ7XlqxRl8QmsIUGf278N8Hxe0qOs7fcZPvuVHyhS4WKxsCAwEAAaNSMFAwDwYDVR0TAQH/BAUwAwEB/zAdBgNVHQ4EFgQUZ9DJSflsyGkpLas5Ll3dMzeMJSEwCwYDVR0PBAQDAgEGMBEGCWCGSAGG+EIBAQQEAwIABzANBgkqhkiG9w0BAQsFAAOCAgEAWrXSFAd4OmT0bxHj1q+zMROTxXalzfAfqncTGaTm2NiqL5be3WfgnQLjGOMX+VVC1YXDlI2xs2JAWD3myRT4u7g1Y320HmjWczaE36h8PrnL+M/LEIHem3bM7e6ZFGHzwN80D5bmM++qacrGnnSDXid/sVx2Vi5KKXOXcFB74Haef5mqVm9uNpjDuUO+7Zdip6xqieHOpYD7HIWCkq/bJXxyrPr9CY37KyVdeMoU8QuIzdlgn5l0yc8LNBXXv7pba+ykPirIWe1ZR0O0z5e0gAqUe0kz9fpiMmzWpaGS/4s8gt0oYX2Ahibc3Lgg179OOpUFOsz92TmPVQCnzseZCPirikCA7qUAmMFKqs+l+X6DdKIrL4ocHs5zFAL9fysdKpczKczAWpZXr9LtuY6WFDkcWhxm4kj1MXyte8UBBC4C1UX47Km5TlOQUApnp7LMXI3jlBB+2Lo3T9N2FhiQ5R2PoNdA+XONNaBb8E9mh83wOvA6+Me1Rb7bIO6q/dTULd41Jns3JQ8zy0H8rQrOSOREWfieW0Czd38ZRJoa7MRp6Z3aYAuqt8pJpOykVbKQY/OYh43pt5gfgFvIkI3CuoJvLPQ3bYKyBiJN8PYhFpOyLYOrOJqbd26x+QFORgiBdZo6u6Em31l3fVpiaMcSAD9Cny6VUEC2aYn00beB2Vc="
+eraa_product_uuid=""
+eraa_initial_sg_token="YjllZDUwMzgtYjE4Yy00OWQwLWFlOGQtNWI1MjNiMDI3ODRmg1xTMkXiTaCUaS6KL0u+Xyl/lDQjaEggvtUH6d6kNoKZYZcIccuhfgTrI7h8vXZZgjGdFg=="
+eraa_enable_telemetry="0"
+eraa_policy_data=""
+
+eraa_http_proxy_use="0"
+eraa_http_proxy_hostname=""
+eraa_http_proxy_port=""
+eraa_http_proxy_user=""
+eraa_http_proxy_password=""
+
+arch=$(uname -m)
+eraa_installer_url="http://repository.eset.com/v1/com/eset/apps/business/era/agent/v10/10.0.3091.0/agent_macosx_x86_64.dmg"
+eraa_installer_checksum="e8a747972b5d978444c0cd7b08431559682344d4"
+if $(echo "$arch" | grep -E "^(x86_64|amd64)$" 2>&1 > /dev/null)
+then
+    eraa_installer_url="http://repository.eset.com/v1/com/eset/apps/business/era/agent/v10/10.0.3091.0/agent_macosx_x86_64.dmg"
+    eraa_installer_checksum="e8a747972b5d978444c0cd7b08431559682344d4"
+elif $(echo "$arch" | grep -E "^(arm64)$" 2>&1 > /dev/null)
+then
+    eraa_installer_url=""
+    eraa_installer_checksum=""
+    if test -z $eraa_installer_url
+    then
+        eraa_installer_url="http://repository.eset.com/v1/com/eset/apps/business/era/agent/v10/10.0.3091.0/agent_macosx_x86_64.dmg"
+        eraa_installer_checksum="e8a747972b5d978444c0cd7b08431559682344d4"
+    fi
+fi
+
+echo "ESET Management Agent live installer script. Copyright © 1992-2022 ESET, spol. s r.o. - All rights reserved."
+
+if test ! -z $eraa_server_company_name
+then
+  echo " * CompanyName: $eraa_server_company_name"
+fi
+echo " * Hostname: $eraa_server_hostname"
+echo " * Port: $eraa_server_port"
+echo " * Installer: $eraa_installer_url"
+echo
+
+if test -z $eraa_installer_url
+then
+  echo "No installer available for '$arch' arhitecture."
+  exit 1
+fi
+
+local_params_file="/tmp/postflight.plist"
+echo "$local_params_file" >> "$files2del"
+
+echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" >> "$local_params_file"
+echo "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">" >> "$local_params_file"
+echo "<plist version=\"1.0\">" >> "$local_params_file"
+echo "<dict>" >> "$local_params_file"
+
+echo "  <key>Hostname</key><string>$eraa_server_hostname</string>" >> "$local_params_file"
+echo "  <key>SendTelemetry</key><string>$eraa_enable_telemetry</string>" >> "$local_params_file"
+
+echo "  <key>Port</key><string>$eraa_server_port</string>" >> "$local_params_file"
+
+if test -n "$eraa_peer_cert_pwd"
+then
+  echo "  <key>PeerCertPassword</key><string>$eraa_peer_cert_pwd</string>" >> "$local_params_file"
+  echo "  <key>PeerCertPasswordIsBase64</key><string>yes</string>" >> "$local_params_file"
+fi
+
+echo "  <key>PeerCertContent</key><string>$eraa_peer_cert_b64</string>" >> "$local_params_file"
+
+
+if test -n "$eraa_ca_cert_b64"
+then
+  echo "  <key>CertAuthContent</key><string>$eraa_ca_cert_b64</string>" >> "$local_params_file"
+fi
+if test -n "$eraa_product_uuid"
+then
+  echo "  <key>ProductGuid</key><string>$eraa_product_uuid</string>" >> "$local_params_file"
+fi
+if test -n "$eraa_initial_sg_token"
+then
+  echo "  <key>InitialStaticGroup</key><string>$eraa_initial_sg_token</string>" >> "$local_params_file"
+fi
+if test -n "$eraa_policy_data"
+then
+
+  echo "  <key>CustomPolicy</key><string>$eraa_policy_data</string>" >> "$local_params_file"
+fi
+
+if test "$eraa_http_proxy_use" = "1"
+then
+  echo "  <key>UseProxy</key><string>$eraa_http_proxy_use</string>" >> "$local_params_file"
+  echo "  <key>ProxyHostname</key><string>$eraa_http_proxy_hostname</string>" >> "$local_params_file"
+  echo "  <key>ProxyPort</key><string>$eraa_http_proxy_port</string>" >> "$local_params_file"
+  echo "  <key>ProxyUsername</key><string>$eraa_http_proxy_user</string>" >> "$local_params_file"
+  echo "  <key>ProxyPassword</key><string>$eraa_http_proxy_password</string>" >> "$local_params_file"
+fi
+
+echo "</dict>" >> "$local_params_file"
+echo "</plist>" >> "$local_params_file"
+
+local_installer="$(dirname $0)"/"$(basename $eraa_installer_url)"
+
+if $(echo "$eraa_installer_checksum  $local_installer" | shasum -c 2> /dev/null > /dev/null)
+then
+    echo "Verified local installer was found: '$local_installer'"
+else
+    local_installer=""
+
+    local_installer_dir="$(mktemp -q -d /tmp/EraAgentOnlineInstaller.XXXXXXXX)"
+    echo "Downloading installer image '$eraa_installer_url':"
+
+    eraa_http_proxy_value=""
+    if test -n "$eraa_http_proxy_value"
+    then
+      export use_proxy=yes
+      export http_proxy="$eraa_http_proxy_value"
+      cd "$local_installer_dir" && { curl --fail --connect-timeout 300 --insecure -O -J "$eraa_installer_url" || curl --fail --connect-timeout 300 --noproxy "*" --insecure -O -J "$eraa_installer_url" ; cd - > /dev/null ; } && echo "$local_installer_dir" >> "$dirs2del"
+    else
+      cd "$local_installer_dir" && { curl --fail --connect-timeout 300 --insecure -O -J "$eraa_installer_url" ; cd - > /dev/null ; } && echo "$local_installer_dir" >> "$dirs2del"
+    fi
+
+    installer_filename="$(ls $local_installer_dir)"
+
+    if [ "$installer_filename" ];
+    then
+        local_installer="$local_installer_dir"/"$installer_filename" && echo "$local_installer" >> "$files2del"
+    fi
+
+    if test ! -s "$local_installer"
+    then
+       echo "Failed to download installer file"
+       exit 2
+    fi
+
+    /bin/echo -n "Checking integrity of downloaded package " && echo "$eraa_installer_checksum  $local_installer" | shasum -c
+fi
+
+if $(echo "$local_installer" | grep -E "\.dmg$" 2>&1 > /dev/null)
+then
+    local_mount="$(mktemp -q -d /tmp/EraAgentOnlineInstaller.XXXXXXXX)" && echo "$local_mount" | tee "$dirs2del" >> "$dirs2umount"
+    echo "Mounting image '$local_installer':" && sudo -S hdiutil attach "$local_installer" -mountpoint "$local_mount" -nobrowse
+
+    local_pkg="$(ls "$local_mount" | grep "\.pkg$" | head -n 1)"
+
+    echo "Installing package '$local_mount/$local_pkg':" && sudo -S installer -pkg "$local_mount/$local_pkg" -target /
+elif $(echo "$local_installer" | grep -E "\.pkg$" 2>&1 > /dev/null)
+then
+    echo "Installing package '$local_installer':" && sudo -S installer -pkg "$local_installer" -target /
+else
+    echo "Installing package '$local_installer' has unsupported package type"
+fi

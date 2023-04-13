@@ -1,0 +1,8 @@
+$url = "https://redirector.eset.systems/li-handler/?uuid=epi_win-76f3151c-e2b7-4ad1-bd3a-73b24ae0b173"
+$file = "$env:temp\eset_installer.exe"
+
+# Télécharger le fichier d'installation
+Invoke-WebRequest -Uri $url -OutFile $file
+
+# Installer le logiciel en mode silencieux
+Start-Process -FilePath $file -ArgumentList "--silent","--accepteula" -Wait
